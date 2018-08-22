@@ -26,7 +26,8 @@ MODEL_BASE = '/opt/models/research'
 sys.path.append(MODEL_BASE)
 sys.path.append(MODEL_BASE + '/object_detection')
 sys.path.append(MODEL_BASE + '/slim')
-
+ 
+import base64
 from decorator import requires_auth
 from flask import Flask
 from flask import redirect
@@ -181,13 +182,11 @@ def upload():
 
 @app.route('/post', methods=['POST'])
 def post():
-  form = PhotoForm(CombinedMultiDict((request.files, request.form)))
-  if request.method == 'POST' and form.validate():
-    with tempfile.NamedTemporaryFile() as temp:
-      form.input_photo.data.save(temp)
-      temp.flush()
-      result = detect_objects(temp.name)
-      #print(result)
+  form = request.form
+  if request.method == 'POST':
+      with open("saved.jpg", "wb") as f:
+        f.write(base64.decodebytes(form.img_data))
+      result = detect_objects("saved.jpg")
       return str(result).replace("'", '"')
   else:
     return redirect(url_for('upload'))
