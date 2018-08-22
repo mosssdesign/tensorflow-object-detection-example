@@ -155,7 +155,7 @@ def detect_objects(image_path):
   boxes, scores, classes, num_detections = client.detect(image)
   image.thumbnail((480, 480), Image.ANTIALIAS)
 
-  boxes = {}
+  results = {}
   for i in range(num_detections):
     if scores[i] < 0.7: continue
     cls = classes[i]
@@ -163,11 +163,11 @@ def detect_objects(image_path):
     if category == "dining table":
         category = "table"
     if cls in [15, 62, 63, 64, 67, 72, 85]:
-        if category in boxes:
-            boxes[category].append(list(boxes[i]))
+        if category in results:
+            results[category].append(list(boxes[i]))
         else:
-            boxes[category] = [list(boxes[i])]
-  return result
+            results[category] = [list(boxes[i])]
+  return results
 
 
 @app.route('/')
