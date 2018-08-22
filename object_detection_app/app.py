@@ -159,13 +159,16 @@ def detect_objects(image_path):
   for i in range(num_detections):
     if scores[i] < 0.7: continue
     cls = classes[i]
-    category = client.category_index[cls]['name']
+    category = client.category_index[cls]['name'].encode("UTF-8")
     if category == "dining table":
         category = "table"
     if cls in [15, 62, 63, 64, 67, 72, 85]:
         if category in results:
+            #results[category][len(results[category].keys())] = list(boxes[i])
             results[category].append(list(boxes[i]))
         else:
+            #results[category] = {0: list(boxes[i])}
+            #results[category][len(results[category].keys()] = list(boxes[i])
             results[category] = [list(boxes[i])]
   return results
 
@@ -184,7 +187,8 @@ def post():
       form.input_photo.data.save(temp)
       temp.flush()
       result = detect_objects(temp.name)
-      return json.dumps(result)
+      #print(result)
+      return str(result).replace("'", '"')
   else:
     return redirect(url_for('upload'))
 
