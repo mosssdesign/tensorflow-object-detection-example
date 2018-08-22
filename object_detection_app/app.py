@@ -134,6 +134,12 @@ def draw_bounding_box_on_image(image, box, color='red', thickness=4):
   draw.line([(left, top), (left, bottom), (right, bottom),
              (right, top), (left, top)], width=thickness, fill=color)
 
+def cut_image(image, box):
+  im_width, im_height = image.size
+  ymin, xmin, ymax, xmax = box
+  coords = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
+  return image.crop(coords)
+
 
 def encode_image(image):
   image_buffer = cStringIO.StringIO()
@@ -155,8 +161,8 @@ def detect_objects(image_path):
     if cls not in new_images.keys() and cls in [15, 62, 63, 64, 67, 72, 85]:
       new_images[cls] = image.copy()
     if cls in [15, 62, 63, 64, 67, 72, 85]:
-        draw_bounding_box_on_image(new_images[cls], boxes[i],
-                               thickness=int(scores[i]*10)-4)
+        new_images[cls] = image.copy()
+        new_images[cls] = cut_image(new_images[cls], boxes[i])
 
   result = {}
   result['original'] = encode_image(image.copy())
