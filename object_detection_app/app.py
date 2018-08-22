@@ -154,7 +154,8 @@ def detect_objects(image_path):
     cls = classes[i]
     if cls not in new_images.keys() and cls in [15, 62, 63, 64, 67, 72, 85]:
       new_images[cls] = image.copy()
-    draw_bounding_box_on_image(new_images[cls], boxes[i],
+    if cls in [15, 62, 63, 64, 67, 72, 85]:
+        draw_bounding_box_on_image(new_images[cls], boxes[i],
                                thickness=int(scores[i]*10)-4)
 
   result = {}
