@@ -152,7 +152,7 @@ def detect_objects(image_path):
   for i in range(num_detections):
     if scores[i] < 0.7: continue
     cls = classes[i]
-    if cls not in new_images.keys():
+    if cls not in new_images.keys() and cls in [15, 62, 63, 64, 67, 72, 85]:
       new_images[cls] = image.copy()
     draw_bounding_box_on_image(new_images[cls], boxes[i],
                                thickness=int(scores[i]*10)-4)
@@ -162,6 +162,8 @@ def detect_objects(image_path):
 
   for cls, new_image in new_images.iteritems():
     category = client.category_index[cls]['name']
+    if category == "dining table":
+        category = "table"
     result[category] = encode_image(new_image)
 
   return result
