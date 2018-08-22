@@ -137,8 +137,8 @@ def draw_bounding_box_on_image(image, box, color='red', thickness=4):
 def cut_image(image, box):
   im_width, im_height = image.size
   ymin, xmin, ymax, xmax = box
-  coords = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
-  return image.crop(coords)
+  coords = (xmin * im_width, ymax * im_height, xmax * im_width, ymin * im_height)
+  return image.crop(box=coords)
 
 
 def encode_image(image):
