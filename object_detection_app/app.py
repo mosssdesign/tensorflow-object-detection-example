@@ -138,7 +138,7 @@ def cut_image(image, box):
   im_width, im_height = image.size
   ymin, xmin, ymax, xmax = box
   coords = (xmin * im_width, ymax * im_height, xmax * im_width, ymin * im_height)
-  return image.crop(box=coords)
+  image.crop(box=coords)
 
 
 def encode_image(image):
@@ -162,7 +162,7 @@ def detect_objects(image_path):
       new_images[cls] = image.copy()
     if cls in [15, 62, 63, 64, 67, 72, 85]:
         new_images[cls] = image.copy()
-        new_images[cls] = cut_image(new_images[cls], boxes[i])
+        cut_image(new_images[cls], boxes[i])
 
   result = {}
   result['original'] = encode_image(image.copy())
