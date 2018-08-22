@@ -20,6 +20,7 @@ import base64
 import cStringIO
 import sys
 import tempfile
+import json
 
 MODEL_BASE = '/opt/models/research'
 sys.path.append(MODEL_BASE)
@@ -154,25 +155,18 @@ def detect_objects(image_path):
   boxes, scores, classes, num_detections = client.detect(image)
   image.thumbnail((480, 480), Image.ANTIALIAS)
 
-  new_images = {}
+  boxes = {}
   for i in range(num_detections):
     if scores[i] < 0.7: continue
     cls = classes[i]
-    if cls not in new_images.keys() and cls in [15, 62, 63, 64, 67, 72, 85]:
-      new_images[cls] = image.copy()
-    if cls in [15, 62, 63, 64, 67, 72, 85]:
-        temp = image.copy()
-        new_images[cls] = cut_image(temp, boxes[i])
-
-  result = {}
-  result['original'] = encode_image(image.copy())
-
-  for cls, new_image in new_images.iteritems():
     category = client.category_index[cls]['name']
     if category == "dining table":
         category = "table"
-    result[category] = encode_image(new_image)
-
+    if cls in [15, 62, 63, 64, 67, 72, 85]:
+        if category in boxes:
+            boxes[category].append(list(boxes[i]))
+        else:
+            boxes[category] = [list(boxes[i])]
   return result
 
 
@@ -182,7 +176,7 @@ def upload():
   return render_template('upload.html', photo_form=photo_form, result={})
 
 
-@app.route('/post', methods=['GET', 'POST'])
+@app.route('/post', methods=['POST'])
 def post():
   form = PhotoForm(CombinedMultiDict((request.files, request.form)))
   if request.method == 'POST' and form.validate():
@@ -190,10 +184,7 @@ def post():
       form.input_photo.data.save(temp)
       temp.flush()
       result = detect_objects(temp.name)
-
-    photo_form = PhotoForm(request.form)
-    return render_template('upload.html',
-                           photo_form=photo_form, result=result)
+      return json.dumps(result)
   else:
     return redirect(url_for('upload'))
 
